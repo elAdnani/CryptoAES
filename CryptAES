@@ -1,0 +1,72 @@
+/**
+ * 
+ */
+package security;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+
+/**
+ * 
+ * @author elAdnani
+ *
+ */
+public class CryptAES {
+	
+	/**
+	 * 
+	 */
+    private static final String TRANSFORMATION = "AES";
+    
+    /**
+     * 
+     */
+    private static final String KEY = "vfCf5ugQrYTdgD08";
+    
+    /**
+     * 
+     */
+    private static final SecretKeySpec secretKey = new SecretKeySpec(KEY.getBytes(), TRANSFORMATION);
+
+    /**
+     * 
+     * @param value
+     * @return
+     * @throws GeneralSecurityException
+     * @throws UnsupportedEncodingException
+     */
+    public static String encrypt(String value) throws GeneralSecurityException {
+    	
+        byte[] encryptedByteValue = instanceCipher(true).doFinal(value.getBytes(StandardCharsets.UTF_8));
+        
+        return Base64.getEncoder().encodeToString(encryptedByteValue);
+    }
+
+    public static String decrypt(String value) throws GeneralSecurityException, UnsupportedEncodingException  {
+        
+        byte[] decryptedValue64 = Base64.getDecoder().decode(value);
+        byte[] decryptedByteValue = instanceCipher(false).doFinal(decryptedValue64);
+        
+        return new String(decryptedByteValue, StandardCharsets.UTF_8);
+    }
+    
+    /**
+     * 
+     * @param encrypt
+     * @return
+     * @throws GeneralSecurityException
+     */
+    private static Cipher instanceCipher(boolean encrypt) throws GeneralSecurityException {
+    	Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+    	       
+    	int opMode = encrypt ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE;
+    	cipher.init(opMode, secretKey);
+    	
+    	return cipher ;
+    }
+}
